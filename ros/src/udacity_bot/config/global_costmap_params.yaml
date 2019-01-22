@@ -3,13 +3,13 @@ global_costmap:
    global_frame: map
    robot_base_frame: robot_footprint
    update_frequency: 5.0 # 50.0
-   publish_frequency: 5.0 # 50.0
-   width: 40.0
-   height: 40.0
+   publish_frequency: 2.0 # 50.0
+   width: 20.0 # 40.0
+   height: 20.0 # 40.0
    resolution: 0.1 # 0.05
    static_map: true
    rolling_window: false
-   # Added
+   transform_tolerance: 0.5
    plugins:
      - {name: static_layer,            type: "costmap_2d::StaticLayer"}
      - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}

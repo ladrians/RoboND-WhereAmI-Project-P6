@@ -77,7 +77,7 @@
           </horizontal>
         </scan>
         <range>
-          <min>0.10</min>
+          <min>0.15</min>
           <max>30.0</max>
           <resolution>0.01</resolution>
         </range>
@@ -98,5 +98,15 @@
     </sensor>
   </gazebo>
 
+  <!-- Structure colors -->
+  <gazebo reference="chassis">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+  <gazebo reference="left_wheel">
+    <material>Gazebo/green</material>
+  </gazebo>
+  <gazebo reference="right_wheel">
+    <material>Gazebo/green</material>
+  </gazebo>
 
 </robot>
