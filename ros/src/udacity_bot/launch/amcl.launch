@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Map server -->
+  <arg name="map_file" default="$(find udacity_bot)/maps/jackal_race.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- Localization-->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <remap from="scan" to="udacity_bot/laser/scan"/>
+    <param name="odom_frame_id" value="odom"/>
+    <param name="odom_model_type" value="diff-corrected"/>
+    <param name="base_frame_id" value="robot_footprint"/>
+    <param name="global_frame_id" value="map"/>
+    <!-- Added parameters taking ideas from https://github.com/grassjelly/linorobot/blob/master/launch/amcl.launch -->
+    <param name="use_sim_time" value="false"/>
+    <param name="gui_publish_rate" value="10.0"/> <!-- Maximum rate (default 10Hz) at which scans and paths are published for visualization -->
+    <param name="laser_max_beams" value="60"/>
+    <param name="min_particles" value="500"/>
+    <param name="max_particles" value="2000"/>
+    <param name="kld_err" value="0.05"/>
+    <param name="kld_z" value="0.99"/>
+    <param name="odom_alpha1" value="0.2"/> <!-- expected noise in odometry's rotation estimate from the rotational component -->
+    <param name="odom_alpha2" value="0.2"/> <!-- expected noise in odometry's rotation estimate from translational component -->
+    <!-- translation std dev, m -->
+    <param name="odom_alpha3" value="0.2"/> <!-- expected noise in odometry's translation estimate from the translational component -->
+    <param name="odom_alpha4" value="0.2"/> <!-- expected noise in odometry's translation estimate from the rotational component -->
+    <param name="laser_z_hit" value="0.5"/>
+    <param name="laser_z_short" value="0.05"/>
+    <param name="laser_z_max" value="0.05"/>
+    <param name="laser_z_rand" value="0.5"/>
+    <param name="laser_sigma_hit" value="0.2"/>
+    <param name="laser_lambda_short" value="0.1"/>
+    <param name="laser_model_type" value="likelihood_field"/> <!-- beam -->
+    <param name="laser_likelihood_max_dist" value="2.0"/>
+    <param name="update_min_d" value="0.2"/> <!-- Translational movement required before performing a filter update. -->
+    <param name="update_min_a" value="0.5"/> <!-- Rotational movement required before performing a filter update. 0.1 represents 5.7 degrees  -->
+    <param name="resample_interval" value="1"/> <!-- Number of filter updates required before resampling. -->
+    <!-- Increase tolerance because the computer can get quite busy -->
+    <param name="transform_tolerance" value="1.5"/> <!-- Default 0.1; time with which to post-date the transform that is published, to indicate that this transform is valid into the future. -->
+    <param name="recovery_alpha_slow" value="0.0"/> <!-- 0.001 Exponential decay rate for the slow average weight filter, used in deciding when to recover by adding random poses. -->
+    <param name="recovery_alpha_fast" value="0.0"/> <!-- 0.1 Exponential decay rate for the fast average weight filter, used in deciding when to recover by adding random poses. -->
+    <!-- When set to true, AMCL will subscribe to the map topic rather than making a service call to receive its map.>
+    <param name="receive_map_topic" value="true"/-->
+    <!--  When set to true, AMCL will only use the first map it subscribes to, rather than updating each time a new one is received. >
+    <param name="first_map_only" value="true"/-->
+  </node>
+
+  <!-- Move base -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <rosparam file="$(find udacity_bot)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find udacity_bot)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find udacity_bot)/config/local_costmap_params.yaml" command="load" />
+    <rosparam file="$(find udacity_bot)/config/global_costmap_params.yaml" command="load" />
+    <rosparam file="$(find udacity_bot)/config/base_local_planner_params.yaml" command="load" />
+
+    <remap from="cmd_vel" to="cmd_vel"/>
+    <remap from="odom" to="odom"/>
+    <remap from="scan" to="udacity_bot/laser/scan"/>
+
+    <param name="base_global_planner" type="string" value="navfn/NavfnROS" />
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+
+  </node>
+
+
+</launch>
