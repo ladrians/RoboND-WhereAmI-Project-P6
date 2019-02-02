@@ -1,0 +1,32 @@
+TrajectoryPlannerROS:
+  holonomic_robot: false
+
+  acc_lim_x: 1.0
+  acc_lim_theta: 2.5
+  min_vel_theta: -0.9
+  max_vel_theta: 0.9
+
+  max_vel_x: 0.6
+  min_vel_x: 0.1
+  
+  escape_vel: -0.3
+  
+  # Forward Simulation Parameters
+  sim_time: 1.7
+  sim_granularity: 0.1
+  angular_sim_granularity: 0.1
+  vx_samples: 6
+  vtheta_samples: 10
+
+  # Trajectory scoring parameters
+  meter_scoring: true # assume that goal_distance and path_distance are expressed in units of meters
+  occdist_scale: 0.1 # The weighting for how much the controller should attempt to avoid obstacles. default 0.01
+  pdist_scale: 0.7 # The weighting for how much the controller should stay close to the path it was given . default 0.6
+  gdist_scale: 0.7 # The weighting for how much the controller should attempt to reach its local goal, also controls speed  default 0.8
+
+  # Oscillation Prevention Parameters
+  escape_reset_dist: 0.1
+  escape_reset_theta: 0.3
+  xy_goal_tolerance: 0.15
+  yaw_goal_tolerance: 3.14
+

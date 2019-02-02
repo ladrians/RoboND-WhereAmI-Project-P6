@@ -1,0 +1,16 @@
+# Detailed descriptions of these parameters can be found at http://wiki.ros.org/costmap_2d
+global_costmap:
+   global_frame: map
+   robot_base_frame: robot_footprint
+   update_frequency: 10.0
+   publish_frequency: 5.0
+   width: 15.0
+   height: 15.0
+   resolution: 0.1
+   static_map: true
+   rolling_window: false
+   transform_tolerance: 0.2
+   plugins:
+     - {name: static_layer,            type: "costmap_2d::StaticLayer"}
+     - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
+     - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
