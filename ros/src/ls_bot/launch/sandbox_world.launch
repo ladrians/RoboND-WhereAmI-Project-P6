@@ -24,6 +24,13 @@
   <!--spawn a robot in gazebo world-->
   <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -param robot_description -model sandbox_bot"/>
 
+  <rosparam command="load" file="$(find ls_bot)/config/control.yaml" />
+  <node name="controller_spawner" pkg="controller_manager" type="spawner"
+        args="rover_joint_publisher rover_velocity_controller --shutdown-timeout 2" />
+
+  <node pkg="topic_tools" type="relay" name="cmd_vel_relay" args="cmd_vel rover_velocity_controller/cmd_vel" />
+
+
   <!--launch rviz-->
   <include file="$(find ls_bot)/launch/rviz.launch"/>
 
