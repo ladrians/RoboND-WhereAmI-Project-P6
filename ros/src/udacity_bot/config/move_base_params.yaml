@@ -1,0 +1,21 @@
+# Move base node parameters http://wiki.ros.org/move_base
+
+shutdown_costmaps: false
+
+controller_frequency: 4.0
+controller_patience: 1.0
+
+planner_frequency: 4.0
+planner_patience: 1.0
+
+oscillation_timeout: 3.0
+oscillation_distance: 0.15
+
+base_local_planner: "base_local_planner/TrajectoryPlannerROS" #options dwa_local_planner/DWAPlannerROS base_local_planner/TrajectoryPlannerROS
+base_global_planner: "navfn/NavfnROS" #options navfn/NavfnROS global_planner/GlobalPlanner, carrot_planner/CarrotPlanner
+
+max_planning_retries: 3.
+
+recovery_behavior_enabled: true
+clearing_rotation_allowed: true
+
