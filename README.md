@@ -26,9 +26,12 @@ All the steps for an accuraty localization were followed and then a second bot c
 
 ![ls_bot in Rviz](./data/ls_bot_rviz01.png)
 
-The `ls_bot` is an extension from the [rocker-bogie project](https://github.com/SyrianSpock/rover). Several changes were needed to make to compile using the ROS Kinetic Kame default infraestructure. The autonomous rover includes a GPS, camera, inertial sensors (IMU) and Lidar for navigation.
+The `ls_bot` is an extension from the [rocker-bogie project](https://github.com/SyrianSpock/rover). Several changes were needed to make to compile using the ROS Kinetic Kame default infraestructure. The autonomous rover includes a GPS, camera, inertial sensors (IMU) and Lidar for navigation. The sensory information was added using the [Gazebo plugins reference](http://gazebosim.org/tutorials?tut=ros_gzplugins).
 
-Each robot needed to be tuned separately. Initially parameters were shared but latter they needed its own for the AMCL and navigation stack.
+Each robot needed to be tuned separately. Initially parameters were shared but latter they needed its own for the AMCL and navigation stack. Both packages are separated:
+
+ * [udacity_bot](ros/src/udacity_bot)
+ * [ls_bot](ros/src/ls_bot)
 
 ## Background
 
@@ -45,7 +48,7 @@ Integrating the usage of ROS packages Adaptive Monte Carlo Localization (AMCL) a
 
 The validation for the correct navigation was used the [Rviz](http://wiki.ros.org/rviz) utility tracking the robot's current location and displaying the generated "Robot Pose", Global and Local costmaps and the associated paths to the desired goal. 
 
-Initially all tuning was done for the `udacity_bot` and when everything worked the same parameters were tested on the `ls_bot` rover. As it didn't work as exected parameters were changed to get a reasonable navigation on both.
+Initially all tuning was done for the `udacity_bot` and when everything worked the same parameters were tested on the `ls_bot` rover. As it didn't work as exected parameters were changed to get a reasonable navigation on both rovers.
 
 ### AMCL
 
@@ -69,7 +72,7 @@ The amcl package has a lot of parameters to select from. Different sets of param
 
 There are two different types of models to consider under this - the `likelihood_field` and the `beam`. Each of these models defines how the laser rangefinder sensor estimates the obstacles in relation to the robot. The selection was `likelihood_field`.
 
- * `laser_max_beams`: 60
+ * `laser_max_beams` set to 60.
 
 #### Odometry
 
@@ -79,8 +82,8 @@ There are two different types of models to consider under this - the `likelihood
 #### Other parameters
 
  * `gui_publish_rate` was lowered to 4Hz to improve performance.
- * `transform_tolerance` time with which to post-date the transform that is published, incresed its value from 0.1 to 0.3. 
- * `kld_err` is the maximum error between the true distribution and the estimated distribution changed, its default value 0.01 was changed to 0.05.
+ * `transform_tolerance` time with which to post-date the transform that is published; incresed its value from 0.1 to 0.3. 
+ * `kld_err` is the maximum error between the true distribution and the estimated distribution changed; its default value 0.01 was changed to 0.05.
  
 ### Navigation Stack
 
@@ -97,7 +100,7 @@ Parameters are centralizaed in the following files for `udacity_bot`:
  * [costmap_common_params.yaml](ros/src/udacity_bot/config/costmap_common_params.yaml)
  * [base_local_planner_params.yaml](ros/src/udacity_bot/config/base_local_planner_params.yaml)
 
-and equivalent files on the package `ls_bot` ([config](ros/src/ls_bot/config/)).
+and equivalent files on the package `ls_bot` ([config](ros/src/ls_bot/config/) folder).
 
 #### move_base_params.yaml
  
@@ -105,73 +108,73 @@ Modifications done on the move_base parameters for [ls_bot](/ros/src/ls_bot/conf
 
 All frequencies were lowered from the default values to get better performance for a small rover because it is not neccesary to set a very high rate. Besides all the warnings detailed from the Navigation stack were minimized.
 
- * controller_frequency: 4.0
- * planner_frequency: 4.0
+ * `controller_frequency` set to 4Hz
+ * `planner_frequency` set to 4Hz.
 
 Patience parameters were increased to be more tolerant to possible problems such as bottlenecks:
 
- * controller_patience: 1.0
- * planner_patience: 1.0
+ * `controller_patience` set to 1Hz.
+ * `planner_patience` set to 1Hz.
 
-The `TrajectoryPlannerROS` base local planner was selected, the alternative DWAPlannerROS (Dynamic Window Approach) was tested too.
+The `TrajectoryPlannerROS` base local planner was selected, the alternative [DWAPlannerROS](http://wiki.ros.org/dwa_local_planner) (Dynamic Window Approach) was tested too but the result were not satisfactory.
 
-For the global planner the default selection was used: NavfnROS.
+For the `global planner` the default selection was used: [NavfnROS](http://wiki.ros.org/navfn).
 
 #### costmap_common_params.yaml
 
- * map_type: `voxel` for `ls_bot` and `costmap` for `udacity_bot`.
- * obstacle_range: The default maximum distance from the robot at which an obstacle will be inserted into the cost map in meters. 2.5 for `ls_bot` and 4.0 for `udacity_bot`. 
- * raytrace_range: The default range in meters at which to raytrace out obstacles from the map using sensor data; 3.0. 
- * transform_tolerance: the default value was set higher, in general a value of 0.2 or 0.3 on both rovers.
- * inflation_radius: determines the minimum distance between the robot geometry and the obstacles; set a conservative value of 0.3.
- * robot_radius: the distance a circular robot should be clear of the obstacle; set a conservative value of 0.30.
- * footprint: as the robot is not circular [ [0.2, 0.2], [-0.2, 0.2], [-0.2, -0.2], [0.2, -0.2] ]
- * sim_time: The amount of time to forward-simulate trajectories in seconds; increased little by little up to 2.0.
- * xy_goal_tolerance: The tolerance in meters for the controller in the x & y distance when achieving a goal; 0.1.
- * yaw_goal_tolerance: The tolerance in radians for the controller in yaw/rotation when achieving its goal; increased to 0.3.
+ * `map_type`: `voxel` for `ls_bot` and `costmap` for `udacity_bot`.
+ * `obstacle_range`: The default maximum distance from the robot at which an obstacle will be inserted into the cost map in meters. 2.5 for `ls_bot` and 4.0 for `udacity_bot`. 
+ * `raytrace_range`: The default range in meters at which to raytrace out obstacles from the map using sensor data; 3.0. 
+ * `transform_tolerance`: the default value was set higher, in general a value of 0.2 or 0.3 on both rovers.
+ * `inflation_radius`: determines the minimum distance between the robot geometry and the obstacles; set a conservative value of 0.3.
+ * `robot_radius`: the distance a circular robot should be clear of the obstacle; set a conservative value of 0.30.
+ * `footprint`: as the robot is not circular [ [0.2, 0.2], [-0.2, 0.2], [-0.2, -0.2], [0.2, -0.2] ]
+ * `sim_time`: The amount of time to forward-simulate trajectories in seconds; increased little by little up to 2.0.
+ * `xy_goal_tolerance`: The tolerance in meters for the controller in the x & y distance when achieving a goal; 0.1.
+ * `yaw_goal_tolerance`: The tolerance in radians for the controller in yaw/rotation when achieving its goal; increased to 0.3.
 
 #### global_costmap_params.yaml and local_costmap_params.yaml
 
 Lowered all frequency parameters:
 
- * update_frequency: 10.0
- * publish_frequency: 5.0
+ * `update_frequency` set to 10Hz.
+ * `publish_frequency` set to 5Hz.
 
 Lowered the size of the global map to 15x15 and local map to 5x5.
 
 Increased the map resolution to improve performance:
 
- * resolution: increased to 0.1.
+ * `resolution` increased to 0.1.
  
 Played with different plugin layers such as StaticLayer, VoxelLayer and InflationLayer.
 
 #### base_local_planner_params.yaml
 
- * acc_lim_x: The x acceleration limit of the robot was decreased to 1.0meters/sec^2.
- * acc_lim_theta: the The y acceleration limit of the robot, used the default of 2.5meters/sec^2 for `ls_bot` and 1.0meters/sec^2 for `udacity_bot`.
- *  min_vel_theta: The minimum rotational velocity allowed for the base set to -0.9radians/sec.
- * max_vel_theta: The maximum rotational velocity allowed for the base set to 0.9radians/sec.
- * max_vel_x: The maximum forward velocity allowed for the base set to 0.6meters/sec.
- * min_vel_x: The minimum forward velocity allowed for the base set to 0.1 meters/sec.
- * escape_vel: Speed used for driving during escapes lowered to -0.3meters/sec to react faster.
+ * `acc_lim_x`: The x acceleration limit of the robot was decreased to 1.0meters/sec^2.
+ * `acc_lim_theta`: the The y acceleration limit of the robot, used the default of 2.5meters/sec^2 for `ls_bot` and 1.0meters/sec^2 for `udacity_bot`.
+ * `min_vel_theta`: The minimum rotational velocity allowed for the base set to -0.9radians/sec.
+ * `max_vel_theta`: The maximum rotational velocity allowed for the base set to 0.9radians/sec.
+ * `max_vel_x`: The maximum forward velocity allowed for the base set to 0.6meters/sec.
+ * `min_vel_x`: The minimum forward velocity allowed for the base set to 0.1 meters/sec.
+ * `escape_vel`: Speed used for driving during escapes lowered to -0.3meters/sec to react faster.
   
 Forward Simulation Parameters
 
- * sim_time: Increased the amount of time to forward-simulate trajectories to 1.7 seconds.
- * sim_granularity: The step size to take between points on a given trajectory increased to 0.1m.
- * vx_samples: Inreased the number of samples to use when exploring the x velocity space to 6m.
- * vtheta_samples: Decreased the number of samples to use when exploring the theta velocity to 10.
+ * `sim_time`: Increased the amount of time to forward-simulate trajectories to 1.7 seconds.
+ * `sim_granularity`: The step size to take between points on a given trajectory increased to 0.1m.
+ * `vx_samples`: Inreased the number of samples to use when exploring the x velocity space to 6m.
+ * `vtheta_samples`: Decreased the number of samples to use when exploring the theta velocity to 10.
 
 Trajectory scoring parameters
 
- * meter_scoring: Changed to True to assume that goal_distance and path_distance are expressed in units of meters.
- * occdist_scale: Increased the weighting for how much the controller should attempt to avoid obstacles from 0.01 to 0.1.
- * pdist_scale: Increased the weighting for how much the controller should stay close to the path it was given from 0.6 to 0.9.
- * gdist_scale: Increased the weighting for how much the controller should attempt to reach its local goal from 0.8 to 0.9. When using higher values the rover got stuck several times when trying to transition a corner.
+ * `meter_scoring`: Changed to True to assume that goal_distance and path_distance are expressed in units of meters.
+ * `occdist_scale`: Increased the weighting for how much the controller should attempt to avoid obstacles from 0.01 to 0.1.
+ * `pdist_scale`: Increased the weighting for how much the controller should stay close to the path it was given from 0.6 to 0.9.
+ * `gdist_scale`: Increased the weighting for how much the controller should attempt to reach its local goal from 0.8 to 0.9. When using higher values the rover got stuck several times when trying to transition a corner.
 
 Oscillation Prevention Parameters
 
- * yaw_goal_tolerance: Experimented with different values to control the rover rotation when achieving its goal, from 0.15 to 3.14.
+ * `yaw_goal_tolerance`: Experimented with different values to control the rover rotation when achieving its goal, from 0.15 to 3.14.
 
 ## Results
 
@@ -180,17 +183,17 @@ Oscillation Prevention Parameters
 To execute the sample on `udacity_bot`
 
 ```sh
-roslaunch udacity_bot udacity_world.launch
-roslaunch udacity_bot amcl.launch
-rosrun udacity_bot navigation_goal
+$ roslaunch udacity_bot udacity_world.launch
+$ roslaunch udacity_bot amcl.launch
+$ rosrun udacity_bot navigation_goal
 ```
 
 To execute the sample on `ls_bot`
 
 ```sh
-roslaunch ls_bot sandbox_world.launch
-roslaunch ls_bot amcl.launch
-rosrun udacity_bot navigation_goal
+$ roslaunch ls_bot sandbox_world.launch
+$ roslaunch ls_bot amcl.launch
+$ rosrun udacity_bot navigation_goal
 ```
 
 ### Evidence
@@ -208,13 +211,38 @@ problem was about sim_time and controller_frequency to high, reduce it and now i
 
 inflation radius: 0.2, pdist_scale: 2.5, gdist_scale: 1.0, occdist_scale: 0.01, sim_time: 2.0, obstacle range: 0.2, raytrace_range: 3.0, transform_tolerance: 0.5 and a controller_frequency of 0.5 in the amcl.launch file.
 
-Used rqt_reconfigure tool to setup and see values dynamically.
-
 reduced the local map size, tolerance, htz
 
 increased the robot footprint slightly.
 
 ToDo
+
+## Considerations
+
+### Segmentation Fault
+
+The GazeboRosSkidSteerDrive was tested but got the following error so Diff Drive was used instead.
+
+[ WARN] [1549136459.896152317, 1517.347000000]: GazeboRosSkidSteerDrive Plugin (ns = //) missing <covariance_x>, defaults to 0.000100
+[ WARN] [1549136459.896289921, 1517.347000000]: GazeboRosSkidSteerDrive Plugin (ns = //) missing <covariance_y>, defaults to 0.000100
+[ WARN] [1549136459.896345824, 1517.347000000]: GazeboRosSkidSteerDrive Plugin (ns = //) missing <covariance_yaw>, defaults to 0.010000
+Segmentation fault (core dumped)
+
+### Rover Frame Information
+
+All frame information was validated using [rqt_tf_tree](http://wiki.ros.org/rqt_tf_tree) command:
+
+```sh
+$ rosrun rqt_tf_tree rqt_tf_tree
+```
+
+### Dynamic Reconfigure
+
+For tuning the AMCL, Move_base and planners parameters; it was fundamental the usage of the [rqt_reconfigure](http://wiki.ros.org/rqt_reconfigure) ROS utility.
+
+```sh
+$ rosrun rqt_reconfigure rqt_reconfigure
+```
 
 ## Conclusion / Future Work
 
@@ -230,3 +258,4 @@ ToDo
  * [This repository](https://github.com/ladrians/RoboND-WhereAmI-Project-P6)
  * [Project Rubric](https://review.udacity.com/#!/rubrics/1365/view)
  * [Mobile Robot Localization](http://www.cs.cmu.edu/~rasc/Download/AMRobots5.pdf)
+ * [Gazebo plugins](http://gazebosim.org/tutorials?tut=ros_gzplugins)
